@@ -26,6 +26,9 @@ $SearchHostname = "Target_Hostname"
 # Get the list of all DHCP scopes on the specified server
 $scopes = Get-DhcpServerv4Scope -ComputerName $DhcpServer
 
+# Initialize an array to store all results
+$finalResults = @()
+
 # Iterate through each scope to search for the specified hostname
 foreach ($scope in $scopes) {
     # Get all DHCP leases for the current scope
@@ -56,7 +59,14 @@ foreach ($scope in $scopes) {
             }
         }
 
-        # Display the results in a formatted table
-        $results | Format-Table -AutoSize
+        # Add the results to the final array
+        $finalResults += $results
     }
+}
+
+# Display the final results in a single formatted table
+if ($finalResults.Count -gt 0) {
+    $finalResults | Format-Table -Property ScopeId, ScopeName, IPAddress, HostName, MacAddress, State -AutoSize
+} else {
+    Write-Host "No matching results found." -ForegroundColor Yellow
 }
